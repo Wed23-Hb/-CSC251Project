@@ -1,92 +1,41 @@
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Scanner;
 
 public class Demo {
-    private static String readNextNonEmpty(Scanner in) {
-        String line = "";
-        while (in.hasNextLine()) {
-            line = in.nextLine().trim();
-            if (!line.isEmpty()) return line;
-        }
-        return line;
-    }
 
-    public static void main(String[] args) {
-        Locale.setDefault(Locale.US);
-        ArrayList<Policy> policies = new ArrayList<>();
+    public static void main(String[] args) throws Exception {
 
-        try (Scanner in = new Scanner(new File("PolicyInformation.txt"))) {
-            while (in.hasNextLine()) {
-                String s = readNextNonEmpty(in);
-                if (s.isEmpty()) break;
+        File file = new File("PolicyInformation.txt");
+        Scanner input = new Scanner(file);
 
-                int policyNumber = Integer.parseInt(s);
-                String providerName = readNextNonEmpty(in);
-                String firstName = readNextNonEmpty(in);
-                String lastName = readNextNonEmpty(in);
-                int age = Integer.parseInt(readNextNonEmpty(in));
-                String smokingStatus = readNextNonEmpty(in);
-                double heightInches = Double.parseDouble(readNextNonEmpty(in));
-                double weightPounds = Double.parseDouble(readNextNonEmpty(in));
+        int smokerCount = 0;
+        int nonSmokerCount = 0;
 
-                PolicyHolder holder = new PolicyHolder(firstName, lastName, age, smokingStatus, heightInches, weightPounds);
-                policies.add(new Policy(policyNumber, providerName, holder));
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("ERROR: PolicyInformation.txt not found.");
-            return;
-        }
+        while (input.hasNext()) {
 
-        DecimalFormat oneDec  = new DecimalFormat("0.0");      // Height/Weight
-        DecimalFormat twoDec  = new DecimalFormat("0.00");     // BMI
-        DecimalFormat money   = new DecimalFormat("$#,##0.00");// Price
+            String policyNumber = input.next();
+            String providerName = input.next();
+            String firstName = input.next();
+            String lastName = input.next();
+            int age = input.nextInt();
+            String smokingStatus = input.next();
+            double height = input.nextDouble();
+            double weight = input.nextDouble();
 
-        int smokerCount = 0, nonSmokerCount = 0;
+            PolicyHolder holder = new PolicyHolder(firstName, lastName, age, smokingStatus, height, weight);
+            Policy policy = new Policy(policyNumber, providerName, holder);
 
-        for (Policy p : policies) {
-            PolicyHolder h = p.getPolicyHolder();
-
-            System.out.println("Policy Number: " + p.getPolicyNumber());
+            System.out.println(policy);
             System.out.println();
 
-            System.out.println("Provider Name: " + p.getProviderName());
-            System.out.println();
-
-            System.out.println("Policyholder's First Name: " + h.getFirstName());
-            System.out.println();
-
-            System.out.println("Policyholder's Last Name: " + h.getLastName());
-            System.out.println();
-
-            System.out.println("Policyholder's Age: " + h.getAge());
-            System.out.println();
-
-            System.out.println("Policyholder's Smoking Status (smoker/non-smoker): " + h.getSmokingStatus());
-            System.out.println();
-
-            System.out.println("Policyholder's Height: " + oneDec.format(h.getHeightInches()) + " inches");
-            System.out.println();
-
-            System.out.println("Policyholder's Weight: " + oneDec.format(h.getWeightPounds()) + " pounds");
-            System.out.println();
-
-            System.out.println("Policyholder's BMI: " + twoDec.format(h.getBMI()));
-            System.out.println();
-
-            System.out.println("Policy Price: " + money.format(p.getPolicyPrice()));
-            System.out.println();
-            System.out.println();
-
-            if (h.getSmokingStatus().equalsIgnoreCase("smoker")) smokerCount++;
+            if (smokingStatus.equalsIgnoreCase("smoker")) smokerCount++;
             else nonSmokerCount++;
         }
 
+        input.close();
+
+        System.out.println("There were " + Policy.getPolicyCount() + " Policy objects created.");
         System.out.println("The number of policies with a smoker is: " + smokerCount);
-        System.out.println();
         System.out.println("The number of policies with a non-smoker is: " + nonSmokerCount);
     }
 }
